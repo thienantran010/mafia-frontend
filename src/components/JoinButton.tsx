@@ -1,11 +1,15 @@
-import { useState } from 'react';
 import { Button } from '@mui/material';
 import { useAuth } from '../providers/AuthProvider';
 
-export default function JoinButton( {children, gameId, isInGame }) {
+interface joinButtonProps {
+    gameId: string;
+    isInGame: boolean;
+}
+export default function JoinButton( {gameId, isInGame } : joinButtonProps) {
     const { accessToken } = useAuth();
-    async function handleClick(event) {
-        const options = {
+
+    const handleClick : React.MouseEventHandler<HTMLButtonElement> = async (_) => {
+        const options : RequestInit = {
             method: "POST",
             credentials: "include",
             body: JSON.stringify({gameId}),
@@ -16,16 +20,17 @@ export default function JoinButton( {children, gameId, isInGame }) {
         }
         try {
             if (isInGame) {
-                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/removePlayerFromGame`, options);
+                await fetch(`${import.meta.env.VITE_BACKEND_URL}/removePlayerFromGame`, options);
             }
             else {
-                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/addPlayerToGame`, options);
+                await fetch(`${import.meta.env.VITE_BACKEND_URL}/addPlayerToGame`, options);
             }
         }
         catch (error) {
             console.log(error);
         }
     }
+
 
     return (
         <Button onClick={handleClick}>{isInGame ? "Leave" : "Join"}</Button>

@@ -1,8 +1,11 @@
-import { Chip, Container, Button, ButtonGroup, Paper, ListItem, TextField, Unstable_Grid2} from '@mui/material';
-import CancelIcon from '@mui/icons-material/Cancel';
-import { useState } from 'react';
+import { Chip, Container, Button, ButtonGroup, Paper, ListItem, TextField} from '@mui/material';
 
-export default function CreateGameForm({ setGameName, roles, setRoles }) {
+interface createGameFormProps {
+    setGameName: React.Dispatch<React.SetStateAction<string>>;
+    roles: string[];
+    setRoles: React.Dispatch<React.SetStateAction<string[]>>;
+}
+export default function CreateGameForm({ setGameName, roles, setRoles } : createGameFormProps) {
     const roleNames = [
         "Mafia",
         "Godfather",
@@ -17,24 +20,29 @@ export default function CreateGameForm({ setGameName, roles, setRoles }) {
         "Gravedigger"
     ]
 
-    const chipData = roles.map((role, index) => {
+    interface chipData {
+        key: number;
+        label: string;
+    }
+    const chipData : chipData[] = roles.map((role, index) => {
         return {
             key: index,
             label: role
         }
     })
 
-    function deleteChip(data) {
-        let newRoles = [...roles].toSpliced(data.key, 1);
+    const deleteChip = (data : chipData) => {
+        let newRoles = [...roles];
+        newRoles.splice(data.key, 1);
         setRoles(newRoles);
     }
 
-    function handleChange(event) {
+    const handleChange : React.ChangeEventHandler<HTMLInputElement> = (event) => {
         setGameName(event.target.value);
     }
 
-    function addRole(event) {
-        let newRoles = [...roles, event.target.name].sort();
+    const addRole : React.MouseEventHandler<HTMLButtonElement> = (event) => {
+        let newRoles = [...roles, (event.target as HTMLButtonElement).name].sort();
         setRoles(newRoles);
     }
 
@@ -84,6 +92,4 @@ export default function CreateGameForm({ setGameName, roles, setRoles }) {
             </ButtonGroup>
         </Container>
     )
-
-
 }

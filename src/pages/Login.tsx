@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Stack, Button, Container, FormControl, InputAdornment, 
+import { Stack, Button, FormControl, InputAdornment, 
         InputLabel, OutlinedInput, IconButton, Link, Typography} from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuth } from '../providers/AuthProvider';
@@ -16,18 +16,18 @@ function LoginForm() {
     const {accessToken, setAccessToken, setUsername} = useAuth();
     const handleClickShowPassword = () => setShowPassword((show) => !show);
   
-    const handleMouseDownPassword = (event) => {
+    const handleMouseDownPassword : React.MouseEventHandler<HTMLButtonElement>= (event) => {
       event.preventDefault();
     };
 
-    const handleChange = (event) => {
+    const handleChange : React.ChangeEventHandler<HTMLInputElement> = (event) => {
         setFormFields({...formFields, [event.target.name]: event.target.value})
     }
 
-    async function handleClick(e) {
+    const handleClick : React.MouseEventHandler<HTMLButtonElement> = async (e) => {
         try {
             e.preventDefault();
-            const options = {
+            const options : RequestInit= {
                 method: "POST",
                 credentials: "include",
                 headers: {

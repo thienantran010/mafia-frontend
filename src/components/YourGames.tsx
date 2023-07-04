@@ -1,6 +1,9 @@
-import { List, ListItemButton, Typography, Container, Divider } from '@mui/material';
+import { List, ListItemButton } from '@mui/material';
 
-function YourGame({ gameName }) {
+interface yourGame {
+    gameName: string;
+}
+function YourGame({ gameName } : yourGame) {
     return (
         <ListItemButton>{gameName}</ListItemButton>
     )

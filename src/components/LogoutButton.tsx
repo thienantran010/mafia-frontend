@@ -3,15 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
 
 export default function LogoutButton() {
-    const {accessToken, setAccessToken} = useAuth();
+    const {setAccessToken} = useAuth();
     const navigate = useNavigate();
     async function handleClick() {
-        const options = {
+        const options : RequestInit = {
             method: "POST",
             credentials: "include"
         }
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, options);
-        const data = await response.json();
+        await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, options);
         setAccessToken("");
         navigate("/login");
     }
