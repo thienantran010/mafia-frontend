@@ -5,9 +5,9 @@ import { useAuth } from '../providers/AuthProvider';
 
 export default function CreateGameDialog() {
     const [open, setOpen] = useState(false);
-    const [gameName, setGameName] = useState("");
-    const [roles, setRoles] = useState([]);
-    const {accessToken, setAccessToken} = useAuth();
+    const [gameName, setGameName] = useState("Fun Game!");
+    const [roles, setRoles] = useState<string[]>([]);
+    const {accessToken} = useAuth();
 
     const handleClickOpen = () => {
       setOpen(true);
@@ -20,7 +20,7 @@ export default function CreateGameDialog() {
     async function handleCreate () {
       handleClose();
       try {
-        const options = {
+        const options : RequestInit = {
             method: "POST",
             credentials: "include",
             headers: {
@@ -32,7 +32,7 @@ export default function CreateGameDialog() {
               roles: roles
             })
         }
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/createOpenGame`, options);
+        await fetch(`${import.meta.env.VITE_BACKEND_URL}/createOpenGame`, options);
       }
       catch (error) {
         console.log(error);

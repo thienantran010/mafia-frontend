@@ -1,9 +1,31 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const AuthContext = createContext();
+// types
+import { ReactNode } from 'react';
+interface Props {
+    children?: ReactNode
+}
 
-const AuthProvider = ({ children }) => {
+interface authInterface {
+    accessToken: string;
+    setAccessToken: React.Dispatch<React.SetStateAction<string>>;
+    isLoading: boolean;
+    username: string;
+    setUsername: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const authDefaultValue = {
+    accessToken: "",
+    setAccessToken: () => {},
+    isLoading: true,
+    username: "",
+    setUsername: () => {}
+}
+const AuthContext = createContext<authInterface>(authDefaultValue);
+
+
+const AuthProvider = ({ children }: Props) => {
     const [accessToken, setAccessToken] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [username, setUsername] = useState("");
@@ -11,24 +33,12 @@ const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const refreshToken = async () => {
-            const options = {
+            const options : RequestInit = {
                 method: 'POST',
                 credentials: "include"
             }
         
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/refresh`, options);
-            return response;
-        }
-
-        const fetchTest = async () => {
-            const options = {
-                method: 'GET',
-                credentials: "include",
-                headers: {
-                    authorization: `Bearer ${accessToken}`
-                }
-            }
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}`, options);
             return response;
         }
 

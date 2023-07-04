@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Stack, Button, Container, FormControl, InputAdornment, 
-        InputLabel, OutlinedInput, IconButton, Typography, Alert, AlertTitle, Link} from '@mui/material';
+import { Stack, Button, FormControl, InputAdornment, 
+        InputLabel, OutlinedInput, IconButton, Typography, Alert, AlertTitle, Link, AlertColor} from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuth } from '../providers/AuthProvider';
 import { Navigate, NavLink} from 'react-router-dom';
@@ -18,18 +18,18 @@ function RegisterForm() {
         message: ""
     })
 
-    const {accessToken, setAccessToken} = useAuth();
+    const {accessToken} = useAuth();
     const handleClickShowPassword = () => setShowPassword((show) => !show);
   
-    const handleMouseDownPassword = (event) => {
+    const handleMouseDownPassword : React.MouseEventHandler<HTMLButtonElement> = (event) => {
       event.preventDefault();
     };
 
-    const handleChange = (event) => {
+    const handleChange : React.ChangeEventHandler<HTMLInputElement> = (event) => {
         setFormFields({...formFields, [event.target.name]: event.target.value})
     }
 
-    async function handleClick(e) {
+    const handleClick : React.MouseEventHandler<HTMLButtonElement> = async (e) => {
         try {
             e.preventDefault();
             const options = {
@@ -115,7 +115,7 @@ function RegisterForm() {
             <Button variant="contained" sx={{m: 1}} onClick={handleClick}>Register</Button>
             {
                 status.type ? (
-                    <Alert severity={status.type} sx={{mb: 1}}>
+                    <Alert severity={status.type as AlertColor} sx={{mb: 1}}>
                         <AlertTitle>{status.type}</AlertTitle>
                         {status.message}
                     </Alert>

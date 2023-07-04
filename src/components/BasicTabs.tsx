@@ -1,7 +1,14 @@
-import { Box, Tabs, Tab, Typography } from '@mui/material';
-import { useState } from "react";
+import { Box, Tabs, Tab } from '@mui/material';
+import { useState, ReactNode } from "react";
 
-function TabPanel(props) {
+interface tabPanelProps {
+    children: ReactNode;
+    value: number;
+    index: number;
+    [prop: string]: any;
+}
+
+function TabPanel(props : tabPanelProps) {
     const { children, value, index, ...other } = props;
   
     return (
@@ -21,7 +28,7 @@ function TabPanel(props) {
     );
   }
 
-function a11yProps(index) {
+function a11yProps(index: number) {
     return {
         id: `simple-tab-${index}`,
         'aria-controls': `simple-tabpanel-${index}`,
@@ -38,10 +45,21 @@ function a11yProps(index) {
 }
 
 */
-export default function BasicTabs( {tabs} ) {
+
+type tabPanels = {
+    name: string;
+    contents: ReactNode;
+    key: string;
+}[];
+
+interface basicTabsProps {
+    tabs: tabPanels;
+}
+
+export default function BasicTabs( {tabs} : basicTabsProps ) {
     const [value, setValue] = useState(0);
   
-    const handleChange = (event, newValue) => {
+    const handleChange : (event: React.SyntheticEvent, value: any) => void = (_, newValue) => {
       setValue(newValue);
     };
   
