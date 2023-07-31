@@ -20,7 +20,7 @@ function TabPanel(props : tabPanelProps) {
         {...other}
       >
         {value === index && (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: 1 }}>
             {children}
           </Box>
         )}
@@ -64,7 +64,7 @@ export default function BasicTabs( {tabs} : basicTabsProps ) {
     };
   
     return (
-      <Box sx={{ width: '100%' }}>
+      <Box >
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             {tabs.map((tab, index) => <Tab label={tab.name} {...a11yProps(index)} key={tab.key}/>)}

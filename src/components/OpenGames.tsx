@@ -23,8 +23,8 @@ function OpenGame( {numPlayersJoined, numPlayersMax, name, roles, playerObjs, id
 
     const rolesComponent = 
         <List>
-        {roles.map((role) => {
-        return (<ListItem><Typography>{role}</Typography></ListItem>)
+        {roles.map((role, index) => {
+        return (<ListItem key={index}><Typography>{role}</Typography></ListItem>)
         })}
     </List>
 
@@ -57,12 +57,12 @@ export default function OpenGames({ openGames, username } : { openGames: openGam
     if (openGames.length > 0) {
         openGameComponents = openGames.map(({id, name, roles, playerObjs, numPlayersJoined, numPlayersMax}) => {
             const playerUsernames = playerObjs.map((playerObj) => playerObj.username);
-            return (<OpenGame id={id} name={name} roles={roles} 
+            return (<OpenGame key={id} id={id} name={name} roles={roles} 
                 playerObjs={playerObjs} numPlayersJoined={numPlayersJoined} numPlayersMax={numPlayersMax} isInGame={playerUsernames.includes(username)}/>);
         });
     }
     else {
-        openGameComponents = [<Typography>No open games...</Typography>];
+        openGameComponents = [<Typography key="no games">No open games...</Typography>];
     }
 
     return (

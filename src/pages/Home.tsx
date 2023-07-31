@@ -3,13 +3,17 @@ import { Typography } from '@mui/material';
 import LogoutButton from '../components/LogoutButton';
 import OpenGames from '../components/OpenGames';
 import BasicTabs from '../components/BasicTabs';
-import YourGames from '../components/YourGames';
+import ActiveGames from '../components/ActiveGames';
 import { useEffect, useState } from 'react';
+
+// types
 import { playerObj, openGame } from '../types/openGameTypes';
+import { activeGameListItem } from '../types/activeGameTypes';
 import socket from '../socket';
 
 export default function Home() {
     const [openGames, setOpenGames] = useState<openGame[]>([]);
+    const [activeGames, setActiveGames] = useState<activeGameListItem[]>([]);
     const {accessToken, isLoading, username} = useAuth();
 
     useEffect(() => {
@@ -30,9 +34,26 @@ export default function Home() {
         return data.openGames;
     }
 
+    async function getYourActiveGames() {
+        const options : RequestInit = {
+            method: "GET",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${accessToken}`
+            }
+        }
+
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/activeGames/getUserActiveGames`, options);
+        const data = await response.json();
+        console.log(data.activeGames);
+        return data.activeGames;
+    }
+
     if (!isLoading) {
         getAllOpenGames().then((data) => {
             setOpenGames(() => data);
+            console.log(data);
             console.log('Games retrieved from database');
 
             socket.connect();
@@ -50,8 +71,6 @@ export default function Home() {
 
             function createOpenGame(game : openGame) {
                 setOpenGames((openGames) => {
-                    console.log([...openGames, game]);
-                    console.log('new game created')
                     return [...openGames, game];
                 });
             }
@@ -92,14 +111,44 @@ export default function Home() {
             return (() => {
                 console.log('disconnecting');
                 socket.disconnect();
-            })
+            });
+        });
+
+        getYourActiveGames().then((activeGames) => {
+            setActiveGames(() => activeGames);
+            console.log('retrieved active games');
+
+            socket.connect();
+
+            function createActiveGame(activeGame : activeGameListItem) {
+                setActiveGames((activeGames) => {
+                    return [...activeGames, activeGame]
+                });
+            }
+
+            function deleteActiveGame(activeGameId : string) {
+                setActiveGames((activeGames) => {
+                    const filteredGames = activeGames.filter((activeGame) => {
+                        return activeGame.id != activeGameId;
+                    })
+                    return filteredGames;
+                });
+            }
+
+            socket.on('activeGame:create', createActiveGame);
+            socket.on('activeGame:delete', deleteActiveGame);
+
+            return (() => {
+                console.log('disconnecting');
+                socket.disconnect();
+            });
         })
     }
     }, [isLoading]);
 
     const tabs = [
         {name: "Open Games", contents: <OpenGames openGames={openGames} username={username}/>, key: "Open Games"},
-        {name: "Your Games", contents: <YourGames />, key: "Your Games"}
+        {name: "Your Games", contents: <ActiveGames activeGames={activeGames} />, key: "Your Games"}
     ]
     return (
         <>

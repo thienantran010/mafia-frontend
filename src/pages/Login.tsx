@@ -40,7 +40,6 @@ function LoginForm() {
             }
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, options);
             const data = await response.json();
-            console.log(...response.headers);
             setAccessToken(data.accessToken);
             setUsername(data.username);
         }
@@ -48,7 +47,6 @@ function LoginForm() {
             console.log(error);
         }
     }
-    console.log(`Access Token ${accessToken}`);
     return (
         accessToken ? <Navigate to="/" /> : 
         <Stack
