@@ -15,13 +15,28 @@ export type VillageRoles =
 | "Creeper"
 | "Doctor"
 
+export interface PlayerEvents {
+    [index : string] : string[];
+}
+
 export interface playersJson {
     [username : string] : {
         playerId: string;
         isAlive: boolean;
+        toastedBy: string[];
         role: Role;
         numActionsLeft: number;
+        events: PlayerEvents;
     }
+}
+
+export interface playerJson {
+    playerId: string;
+    isAlive: boolean;
+    toastedBy: string[];
+    role: Role;
+    numActionsLeft: number;
+    events: PlayerEvents;
 }
 
 export interface messageJson {
@@ -48,4 +63,7 @@ export interface gameJson {
     allChat: messageJson[];
     mafiaChat: messageJson[];
     copChat: messageJson[];
+    timeLeft: string;
+
+    
 }

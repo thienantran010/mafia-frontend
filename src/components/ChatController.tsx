@@ -11,7 +11,7 @@ function Messages( { messages } : { messages: messageJson[]}) {
     return (
 
         // temporary solution, maxHeight should be adjusted using useRef
-        <List style={{maxHeight: `70vh`, overflow: 'auto'}}>
+        <List>
             {messages.map((message, index) => {
                 return (
                     <ListItem alignItems="flex-start" key={index}>
@@ -59,7 +59,7 @@ function Chat({ allChat, mafiaChat, copChat, isDay, isAlive, gameId } : ChatProp
         const endpoint = allChat ? "all" : mafiaChat ? "mafia" : "cop"
         const data = await fetch(`${import.meta.env.VITE_BACKEND_URL}/activeGames/postMessage/${gameId}/${endpoint}`, options);
         const json = await data.json();
-        console.log(json.message);
+        setText("");
     }
 
     const handleChange : React.ChangeEventHandler<HTMLInputElement> = (event) => {
@@ -116,7 +116,7 @@ function Chat({ allChat, mafiaChat, copChat, isDay, isAlive, gameId } : ChatProp
         <Stack>
             <Messages messages={messages} />
             <Stack direction="row" alignItems="center" spacing={1}>
-                <TextField onKeyDown={handleEnterKeyDown} onChange={handleChange} multiline fullWidth/>
+                <TextField onKeyDown={handleEnterKeyDown} onChange={handleChange} multiline fullWidth value={text}/>
                 <Button variant="contained" onClick={handleClick}>Post</Button>
             </Stack>
         </Stack>

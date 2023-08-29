@@ -1,37 +1,24 @@
-import { DateTime } from 'luxon';
+import { Duration } from 'luxon';
 import { useState, useEffect } from 'react';
-import { Typography } from '@mui/material';
+import { Typography, Stack } from '@mui/material';
+
 
 interface TimerProps {
-    deadline: string;
+    timeLeft: string,
+    currentPhase: string
 }
-
-const useTimer = (deadline : string) => {
-    const [duration, setDuration] = useState(DateTime.fromISO(deadline).diffNow());
-
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            setDuration((duration) => duration.minus({seconds: 1}));
-        }, 1000);
-
-        return () => {
-            clearInterval(intervalId);
-        }
-    })
-
-    useEffect(() => {
-        setDuration(DateTime.fromISO(deadline).diffNow());
-    }, [deadline]);
-    
-    return {
-        hours: duration.hours,
-        minutes: duration.minutes,
-        seconds: duration.seconds
+export default function Timer({timeLeft, currentPhase} : TimerProps) {
+    const duration = Duration.fromISO(timeLeft);
+    let hoursMinsSecs;
+    if (duration.invalidExplanation) {
+        hoursMinsSecs = <Typography variant="h1">Game Ended</Typography> 
     }
-}
-
-export default function Timer({deadline} : TimerProps) {
-    const { hours, minutes, seconds } = useTimer(deadline);
-
-    return <Typography variant="h1">{hours}:{minutes}:{seconds}</Typography>
+    else {
+        hoursMinsSecs = <Typography variant="h1">{duration.hours}:{duration.minutes}:{duration.seconds}</Typography>
+    }
+    console.log(duration);
+    return <Stack>
+        {hoursMinsSecs}
+        <Typography variant="subtitle1">{currentPhase}</Typography>
+    </Stack>
 }

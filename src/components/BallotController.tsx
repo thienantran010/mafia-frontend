@@ -1,25 +1,23 @@
 import { useAuth } from '../providers/AuthProvider';
 import { FormControl, FormLabel, FormControlLabel, RadioGroup, Typography, Radio, Alert, AlertTitle } from '@mui/material';
-import { playersJson, actionJson, MafiaRoles, Role, action } from '../types/gameTypes';
+import { playersJson, actionJson, MafiaRoles, Role, action, playerJson } from '../types/gameTypes';
 import { useState, useEffect, ReactNode } from 'react';
 import BasicTabs from './BasicTabs';
 import SimpleDialog from './SimpleDialog';
 import Library from './Library';
 
+interface playerAndUsernameJson extends playerJson {
+    username: string;
+}
 interface BallotProps {
-    alivePlayers: {
-        username: string;
-        playerId: string;
-        isAlive: boolean;
-        role: Role,
-        numActionsLeft: number
-    }[];
+    playerInfo: playerJson;
+    alivePlayers: playerAndUsernameJson[];
     isDay: boolean;
     gameId: string;
     actions: actionJson[];
 }
 
-function DayBallot({ alivePlayers, isDay, gameId, actions } : BallotProps) {
+function DayBallot({ playerInfo, alivePlayers, isDay, gameId, actions } : BallotProps) {
     const { username, accessToken } = useAuth();
     const [openDialog, setOpenDialog] = useState(false);
 
@@ -30,9 +28,8 @@ function DayBallot({ alivePlayers, isDay, gameId, actions } : BallotProps) {
     }
 
     const mafiaRoles : Set<MafiaRoles> = new Set(["Kamikaze", "Mafia", "Godfather", "Toaster"]);
-    const player = alivePlayers.filter((player) => player.username === username)[0];
     let isMafia = false;
-    if (mafiaRoles.has(player.role as MafiaRoles)) {
+    if (mafiaRoles.has(playerInfo.role as MafiaRoles)) {
         isMafia = true;
     }
     const labelMafiaRole = (role : string) => {
@@ -49,9 +46,11 @@ function DayBallot({ alivePlayers, isDay, gameId, actions } : BallotProps) {
                 "Content-Type": "application/json",
                 "authorization": `Bearer ${accessToken}`
             },
-            body: JSON.stringify({vote})
+            body: JSON.stringify({dayVote: vote})
         }
-        await fetch(`${import.meta.env.VITE_BACKEND_URL}/activeGames/postAction/${gameId}`, options);
+
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/activeGames/postAction/${gameId}`, options);
+        const json = await res.json();
     }
 
     const handleClick : React.MouseEventHandler<HTMLLabelElement> = async (event) => {
@@ -63,7 +62,6 @@ function DayBallot({ alivePlayers, isDay, gameId, actions } : BallotProps) {
         // label has a value of undefined so we don't want to post vote when the value is undefined
         else if ((event.target as HTMLInputElement).value !== undefined) {
             await postVote((event.target as HTMLInputElement).value);
-            console.log('sent vote in');
         }
       };
 
@@ -93,7 +91,7 @@ function DayBallot({ alivePlayers, isDay, gameId, actions } : BallotProps) {
 }
 
 
-function ActionBallot({ alivePlayers, isDay, gameId, actions } : BallotProps) {
+function ActionBallot({ playerInfo, alivePlayers, isDay, gameId, actions } : BallotProps) {
     const { username, accessToken } = useAuth();
     const [openDialog, setOpenDialog] = useState(false);
 
@@ -110,11 +108,10 @@ function ActionBallot({ alivePlayers, isDay, gameId, actions } : BallotProps) {
                                             "Sniper", "Bulletproof", "Gravedigger"]);
     const dayRoles : Set<Role> = new Set(["Kamikaze"]);
 
-    const player = alivePlayers.filter((player) => player.username === username)[0];
-    const playerRole = player.role;
-    const numActionsLeft = player.numActionsLeft;
+    const playerRole = playerInfo.role;
+    const numActionsLeft = playerInfo.numActionsLeft;
     let isMafia = false;
-    if (mafiaRoles.has(player.role as MafiaRoles)) {
+    if (mafiaRoles.has(playerInfo.role as MafiaRoles)) {
         isMafia = true;
     }
 
@@ -131,14 +128,8 @@ function ActionBallot({ alivePlayers, isDay, gameId, actions } : BallotProps) {
             body: JSON.stringify({actionVote: vote})
         }
 
-        /*
-        const data = await fetch(`${import.meta.env.VITE_BACKEND_URL}/activeGames/test/${gameId}`, options);
-        const json = await data.json()
-        console.log(json.message);
-        */
         const data = await fetch(`${import.meta.env.VITE_BACKEND_URL}/activeGames/postAction/${gameId}`, options);
         const json = await data.json();
-        console.log(json.message);
     }
 
     // we do not make vote a state - we have an event handler that lets the database know that the vote
@@ -155,7 +146,6 @@ function ActionBallot({ alivePlayers, isDay, gameId, actions } : BallotProps) {
         // label has a value of undefined so we don't want to post vote when the value is undefined
         else if ((event.target as HTMLInputElement).value !== undefined) {
             await postVote((event.target as HTMLInputElement).value);
-            console.log('sent vote in');
         }
       };
 
@@ -197,9 +187,10 @@ export default function BallotController( { players, isDay, actions, gameId, lib
 
     const alivePlayers = []
 
-    for (const username in players) {
-        if (players[username].isAlive) {
-            alivePlayers.push({username: username, ...players[username]});
+    let playerInfo : playerJson = players[username];
+    for (const playerUsername in players) {
+        if (players[playerUsername].isAlive) {
+            alivePlayers.push({username: playerUsername, ...players[playerUsername]});
         }
     }
 
@@ -207,7 +198,7 @@ export default function BallotController( { players, isDay, actions, gameId, lib
     const tabs = [
         {
             name: "Day Vote",
-            contents: <DayBallot alivePlayers={alivePlayers} isDay={isDay} gameId={gameId} actions={actions}/>,
+            contents: <DayBallot playerInfo={playerInfo} alivePlayers={alivePlayers} isDay={isDay} gameId={gameId} actions={actions}/>,
             key: "Day Vote"
         }
     ]
@@ -215,7 +206,7 @@ export default function BallotController( { players, isDay, actions, gameId, lib
     if (playerRole !== 'Bulletproof' && playerRole !== 'Villager') {
         tabs.push({
             name: "Action Vote",
-            contents: <ActionBallot alivePlayers={alivePlayers} isDay={isDay} gameId={gameId} actions={actions}/>,
+            contents: <ActionBallot playerInfo={playerInfo} alivePlayers={alivePlayers} isDay={isDay} gameId={gameId} actions={actions}/>,
             key: "Action Vote"
         });
     }

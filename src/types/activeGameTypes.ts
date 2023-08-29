@@ -5,12 +5,18 @@ export interface activeGameListItem {
     name: string;
 }
 
+export interface PlayerEvents {
+    [index : string] : string[];
+}
+
 export interface playersJson {
     [username : string] : {
         playerId: string;
         isAlive: boolean;
+        toastedBy: string[];
         role: Role;
         numActionsLeft: number;
+        events: PlayerEvents;
     }
 }
 
@@ -35,6 +41,9 @@ export interface activeGameJson {
     name: string;
     players: playersJson;
     actions: actionJson[];
-    library: string[];
-    messages: messageJson[];
+    library: string[][];
+    allChat: messageJson[];
+    mafiaChat: messageJson[];
+    copChat: messageJson[];
+    nextPhase: string;
 }
